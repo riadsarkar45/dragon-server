@@ -1,42 +1,71 @@
-import { error } from "console"
-import prisma from "../../Prisma/prisma"
-import { dyeingOrder } from "../../types/types"
+import prisma from "../../Prisma/prisma";
+import { dyeingOrders } from "../../types/types";
 
 export const orderRepository = {
-    async createOrder(data: dyeingOrder) {
-
+    async createOrder(data: Omit<dyeingOrders, 'id' | 'createdAt'>) {
         if (!data) {
-            throw new Error("No data provided to create new dyeing order check line 7 file orders.repository.ts")
+            throw new Error("No data provided to create new dyeing order");
         }
 
-        const createDyeingOrder = await prisma.dyeingOrders.create({
-
-            data
-        })
-
-        if (!createDyeingOrder) {
-            throw new Error("New dyeing order creation failed line 14 file orders.repository.ts")
+        try {
+            const order = await prisma.dyeingOrders.create({
+                data
+            });
+            return order;
+        } catch (error) {
+            console.error("Error creating dyeing order:", error);
+            throw new Error("Failed to create dyeing order");
         }
-
-        return createDyeingOrder;
     },
 
     async findOrderByMonth(monthName: string) {
-
-        if (!monthName) throw new Error("No month name provided to filter according to month name -> Error line no 17 function finderOrderByMonth");
-
-        const filter = await prisma.dyeingOrders.findMany(
-            {
-                where: { monthName: monthName }
-            }
-        )
-
-        if (!filter) {
-            throw new Error("No filtered data found")
+        if (!monthName) {
+            throw new Error("No month name provided for filtering");
         }
 
-        return filter;
+        try {
+            // Assuming monthName is like "January", "February", etc.
+            // You might need to adjust this logic based on your data structure
+            const orders = await prisma.dyeingOrders.findMany({
+                where: {
+                    createdAt: {
+                        gte: new Date(`${monthName} 1, ${new Date().getFullYear()}`),
+                        lt: new Date(`${monthName} 32, ${new Date().getFullYear()}`)
+                    }
+                }
+            });
+            
+            return orders; // Return empty array if no results (more RESTful)
+        } catch (error) {
+            console.error("Error filtering orders by month:", error);
+            throw new Error("Failed to filter orders by month");
+        }
+    },
 
+    // Additional useful methods
+    async findById(id: number) {
+        try {
+            const order = await prisma.dyeingOrders.findUnique({
+                where: { id }
+            });
+            return order;
+        } catch (error) {
+            console.error("Error finding order by ID:", error);
+            throw new Error("Failed to find order by ID");
+        }
+    },
+
+    async findAll(limit?: number, offset?: number) {
+        try {
+            const orders = await prisma.dyeingOrders.findMany({
+                take: limit,
+                skip: offset,
+                orderBy: { createdAt: 'desc' }
+            });
+            return orders;
+        } catch (error) {
+            console.error("Error fetching all orders:", error);
+            throw new Error("Failed to fetch orders");
+        }
     }
-
-}
+};

@@ -1,20 +1,21 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { databaseConnect } from "./database/databaseConnect";
+import { allRoutes } from "./routes/routes";
 const app = Fastify(
-    {
-        logger: {
-            transport: {
-                target: 'pino-pretty',
-                options: {
-                    colorize: true,
-                    levelFirst: true,
-                    translateTime: 'HH:MM:ss',
-                    ignore: 'pid,hostname',
-                }
-            }
+  {
+    logger: {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          levelFirst: true,
+          translateTime: 'HH:MM:ss',
+          ignore: 'pid,hostname',
         }
+      }
     }
+  }
 )
 
 const allowedOrigins = [
@@ -23,12 +24,15 @@ const allowedOrigins = [
 ];
 
 app.register(cors, {
-    origin: allowedOrigins,
-    credentials: true,
+  origin: allowedOrigins,
+  credentials: true,
 })
+
+app.register(allRoutes); // all routes are @registered here
+
 databaseConnect(app)
 app.get("/", async () => {
-    return { "server": "fastify server running" };
+  return { "server": "fastify server running" };
 });
 
 const start = async () => {

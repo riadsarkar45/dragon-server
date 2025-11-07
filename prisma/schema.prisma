@@ -13,6 +13,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// colors
+// : 
+// "k"
+// dyeingOrderNumber
+// : 
+// "k"
+// dyeingSection
+// : 
+// "k"
+// factoryName
+// : 
+// "k"
+// marketingName
+// : 
+// "k"
+// merchentName
+// : 
+// "k"
+// orderQty
+// : 
+// "k"
+// yarnType
+// : 
+// "k"
+
 model dyeingOrders {
   id            Int      @id @default(autoincrement())
   orderNo       String
@@ -20,6 +45,10 @@ model dyeingOrders {
   yarnType      String
   marketingId   Int
   marketingName String
+  merchentName  String
+  factoryName   String
+  dyeingSection String
+  colors        String
   user          users    @relation(fields: [marketingId], references: [id])
   createdAt     DateTime @default(now())
   monthName     String
