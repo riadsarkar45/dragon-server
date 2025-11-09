@@ -1,11 +1,3 @@
-// export interface dyeingOrder {
-//     orderNo: string;
-//     orderQty: string;
-//     yarnType: string;
-//     marketingName: string
-//     marketingId: number
-//     monthName: string
-// }
 
 export interface dyeingOrder {
     colors: string;
@@ -22,14 +14,9 @@ export interface dyeingOrder {
     id?: string;        // Optional for creation
 }
 
-
-
-
-// model dyeingOrders {
-//   id            Int                  @id @default(autoincrement())
-//   orderNo       String
-//   orderQty      String
-//   yarnType      String
-//   createdAt     DateTime             @default(now())
-//   marketingName users @relation(fields: [id], references: [id])
-// }
+export interface usersBodyTypes {
+    userName: string;
+    userDesignation: string;
+    userRole: string;
+    profilePhotoUrl: string;
+}

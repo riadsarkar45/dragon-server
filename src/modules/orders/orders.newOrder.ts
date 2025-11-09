@@ -1,6 +1,4 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { orderRepository } from "./orders.repository";
-import { exit } from "process";
 import prisma from "../../Prisma/prisma";
 import { dyeingOrder } from "../../types/types";
 
@@ -25,7 +23,7 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
     if (!factoryName) missingFields.push('factoryName');
     if (!marketingName) missingFields.push('marketingName');
     if (!merchentName) missingFields.push('merchentName');
-    if (!marketingId) missingFields.push('marketingId');
+    // if (!marketingId) missingFields.push('marketingId');
     if (!orderQty) missingFields.push('orderQty');
     if (!yarnType) missingFields.push('yarnType');
 
@@ -44,7 +42,7 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
             orderNo: orderNo,
             factoryName: factoryName,
             marketingName: marketingName,
-            marketingId: marketingId,
+            userId: 1, // marketing id is static for now 
             merchentName: merchentName,
             orderQty: orderQty,
             yarnType: yarnType,

@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
 import { createNewDyeingOrder } from "../modules/orders/orders.newOrder";
-import { dyeingOrders } from "@prisma/client";
+import { createNewUser } from "../modules/users/createNewUser";
 
 export const allRoutes = (fastify: FastifyInstance) => {
 
-    fastify.post<{ Body: dyeingOrders }>('/neworder', {
+    fastify.post('/neworder', {
         schema: {
             body: {
                 type: 'object',
@@ -32,5 +32,23 @@ export const allRoutes = (fastify: FastifyInstance) => {
                 }
             }
         }
-    }, createNewDyeingOrder)
+    }, createNewDyeingOrder) // this route is for creating new dyeing order
+
+    fastify.post("/newprofile", {
+        schema: {
+            body: {
+                type: "object",
+
+                required: ["userName", "userDesignation", "userRole", "userEmail", "userPassword"],
+
+                properties: {
+                    userName: { type: "string" },
+                    userDesignation: { type: "string" },
+                    userRole: { type: "string" },
+                    userEmail: { type: "string" },
+                    userPassword: { type: "string" },
+                }
+            }
+        }
+    }, createNewUser)
 }

@@ -43,13 +43,13 @@ model dyeingOrders {
   orderNo       String
   orderQty      String
   yarnType      String
-  marketingId   Int
+  userId        Int
   marketingName String
   merchentName  String
   factoryName   String
   dyeingSection String
   colors        String
-  user          users    @relation(fields: [marketingId], references: [id])
+  user          users    @relation(fields: [userId], references: [id])
   createdAt     DateTime @default(now())
   monthName     String
 }
