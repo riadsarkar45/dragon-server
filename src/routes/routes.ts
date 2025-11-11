@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { createNewDyeingOrder } from "../modules/orders/orders.newOrder";
 import { createNewUser } from "../modules/users/createNewUser";
+import { userLogin } from "../modules/users/login";
 
 export const allRoutes = (fastify: FastifyInstance) => {
 
@@ -50,5 +51,18 @@ export const allRoutes = (fastify: FastifyInstance) => {
                 }
             }
         }
-    }, createNewUser)
+    }, createNewUser) // this route is for creating new profile
+
+    fastify.post("/login", {
+        schema: {
+            body: {
+                type: "object",
+                required: ["email", "password"],
+                properties: {
+                    email: { type: "string" },
+                    password: { type: "string" },
+                }
+            }
+        }
+    }, userLogin) // user login route
 }

@@ -2,6 +2,9 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { databaseConnect } from "./database/databaseConnect";
 import { allRoutes } from "./routes/routes";
+import fastifyCookie from "@fastify/cookie";
+import { env } from "process";
+import fastifyJwt from "@fastify/jwt";
 const app = Fastify(
   {
     logger: {
@@ -28,7 +31,24 @@ app.register(cors, {
   credentials: true,
 })
 
+app.register(fastifyCookie)
+
+
+
 app.register(allRoutes); // all routes are @registered here
+
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) throw new Error("jwtSecrete Token is not set at line 37 file server.ts")
+
+app.register(fastifyJwt, {
+  secret: jwtSecret,
+  verify: {
+    extractToken: (req) => {
+      return req.cookies?.token
+    }
+  }
+})
 
 databaseConnect(app)
 app.get("/", async () => {

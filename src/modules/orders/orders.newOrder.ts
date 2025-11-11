@@ -33,26 +33,48 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
         });
     }
 
+    try {
 
 
-    const addNewOrder = await prisma.dyeingOrders.create({
-        data: {
-            colors: colors,
-            dyeingSection: dyeingSection,
-            orderNo: orderNo,
-            factoryName: factoryName,
-            marketingName: marketingName,
-            userId: 1, // marketing id is static for now 
-            merchentName: merchentName,
-            orderQty: orderQty,
-            yarnType: yarnType,
-            monthName: new Date().toLocaleString('en-US', { month: 'long' })
-        }
-    })
+        const addNewOrders = await prisma.$transaction(async (tx) => {
+            const addNewOrder = await tx.dyeingOrders.create(
+                {
+                    data: {
+                        dyeingSection: dyeingSection,
+                        orderNo: orderNo,
+                        userId: 1,
+                        factoryName: factoryName,
+                        marketingName: marketingName,
+                        merchentName: merchentName,
+                        orderQty: orderQty,
+                        yarnType: yarnType,
+                        monthName: new Date().toLocaleString('en-US', { month: 'long' })
+                    }
+                }
+            )
+            const dyeingOrderId = addNewOrder.id; 
+            const addColors = await tx.colors.createMany(
+                {
+                    data: {
+                        colors: colors,
+                        dyeingOrderId: dyeingOrderId,
 
-    if (!addNewOrder) {
-        return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
+                    }
+                }
+            )
+
+
+        })
+
+        // if (!addNewOrders.order) {
+        //     return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
+        // }
+
+        reply.status(200).send({ message: "New dyeing order created successfully" })
+    } catch (e) {
+        console.log(e);
     }
 
-    reply.status(200).send({ message: "New dyeing order created successfully" })
+
+
 }

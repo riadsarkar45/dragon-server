@@ -11,7 +11,6 @@ export interface dyeingOrder {
     yarnType: string;
     monthName: string;  // Add this
     createdAt: Date;
-    id?: string;        // Optional for creation
 }
 
 export interface usersBodyTypes {
@@ -19,4 +18,11 @@ export interface usersBodyTypes {
     userDesignation: string;
     userRole: string;
     profilePhotoUrl: string;
+    userEmail: string;
+    userPassword: string
+}
+
+export interface loginUserPayload {
+    email: string;
+    password: string
 }

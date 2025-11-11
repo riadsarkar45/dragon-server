@@ -13,52 +13,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// colors
-// : 
-// "k"
-// dyeingOrderNumber
-// : 
-// "k"
-// dyeingSection
-// : 
-// "k"
-// factoryName
-// : 
-// "k"
-// marketingName
-// : 
-// "k"
-// merchentName
-// : 
-// "k"
-// orderQty
-// : 
-// "k"
-// yarnType
-// : 
-// "k"
+model users {
+  id              Int            @id @default(autoincrement())
+  email           String         @unique
+  password        String
+  name            String
+  userRole        String
+  userDesignation String
+  profilePhotoUrl String
+  orders          dyeingOrders[] // relation: one user -> many orders
+  createdAt       DateTime       @default(now())
+}
 
 model dyeingOrders {
   id            Int      @id @default(autoincrement())
   orderNo       String
   orderQty      String
   yarnType      String
-  userId        Int
+  userId        Int? // nullable now
   marketingName String
   merchentName  String
   factoryName   String
   dyeingSection String
-  colors        String
-  user          users    @relation(fields: [userId], references: [id])
+  colors        colors[]
+  user          users?   @relation(fields: [userId], references: [id]) // optional relation
   createdAt     DateTime @default(now())
   monthName     String
 }
 
-model users {
-  id        Int            @id @default(autoincrement())
-  email     String         @unique
-  password  String
-  name      String?
-  orders    dyeingOrders[]
-  createdAt DateTime       @default(now())
+model colors {
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  colors        String
+  status        String       @default("NOT RCVD")
+  dyeingOrders  dyeingOrders @relation(fields: [dyeingOrderId], references: [id])
+  dyeingOrderId Int
 }
