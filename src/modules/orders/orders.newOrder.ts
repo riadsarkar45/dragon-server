@@ -37,6 +37,7 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
 
 
         const addNewOrders = await prisma.$transaction(async (tx) => {
+
             const addNewOrder = await tx.dyeingOrders.create(
                 {
                     data: {
@@ -47,28 +48,55 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                         marketingName: marketingName,
                         merchentName: merchentName,
                         orderQty: orderQty,
-                        yarnType: yarnType,
+                        yarnTypeId: 1,
                         monthName: new Date().toLocaleString('en-US', { month: 'long' })
                     }
                 }
             )
-            const dyeingOrderId = addNewOrder.id; 
-            const addColors = await tx.colors.createMany(
-                {
-                    data: {
-                        colors: colors,
-                        dyeingOrderId: dyeingOrderId,
 
-                    }
+            const yarnTypeArray = yarnType.split(',').map(yt => yt.trim());
+
+            const yarnTypeRows = [];
+            for (const yt of yarnTypeArray) {
+                const row = await tx.yarnTypes.upsert({
+                    where: { yarnType: yt }, // yarnType column must be unique
+                    update: {},
+                    create: { yarnType: yt }
+                });
+                yarnTypeRows.push(row);
+            }
+
+            const dyeingOrderId = addNewOrder.id;
+            const convertColorsStringToArray = colors.split(',').map(color => color.trim());
+
+            await tx.colors.createMany({
+                data: convertColorsStringToArray.map(color => ({
+                    colors: color,
+                    dyeingOrderId: dyeingOrderId,
+                })),
+            });
+
+            const convertYarnTypeToArray = yarnType.split(',').map(yt => yt.trim());
+
+            await tx.yarnTypes.createMany(
+                {
+                    data: convertYarnTypeToArray.map((yt) => (
+                        {
+                            yarnType: yt,
+                            dyeingOrderId: dyeingOrderId
+                        }
+                    ))
+
                 }
             )
 
+            return addNewOrder;
 
         })
 
-        // if (!addNewOrders.order) {
-        //     return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
-        // }
+        if (!addNewOrders) {
+            return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
+        }
 
         reply.status(200).send({ message: "New dyeing order created successfully" })
     } catch (e) {

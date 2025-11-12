@@ -26,20 +26,29 @@ model users {
 }
 
 model dyeingOrders {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   orderNo       String
   orderQty      String
-  yarnType      String
-  userId        Int? // nullable now
+  yarnTypeId    Int
+  yarnTypes     yarnTypes @relation(fields: [yarnTypeId], references: [id])
+  userId        Int
   marketingName String
   merchentName  String
   factoryName   String
   dyeingSection String
   colors        colors[]
-  user          users?   @relation(fields: [userId], references: [id]) // optional relation
-  createdAt     DateTime @default(now())
+  user          users?    @relation(fields: [userId], references: [id])
+  createdAt     DateTime  @default(now())
   monthName     String
 }
+
+model yarnTypes {
+  id           Int            @id @default(autoincrement())
+  yarnType     String         @unique
+  createdAt    DateTime       @default(now())
+  dyeingOrders dyeingOrders[]
+}
+
 
 model colors {
   id            Int          @id @default(autoincrement())
