@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { createNewDyeingOrder } from "../modules/orders/orders.newOrder";
 import { createNewUser } from "../modules/users/createNewUser";
 import { userLogin } from "../modules/users/login";
+import { addNewYarnStock } from "../modules/yarnstock/addNewYarn";
 
 export const allRoutes = (fastify: FastifyInstance) => {
 
@@ -52,6 +53,23 @@ export const allRoutes = (fastify: FastifyInstance) => {
             }
         }
     }, createNewUser) // this route is for creating new profile
+
+    fastify.post("/newshipped", {
+        schema: {
+            type: "object",
+            body: {
+                type: "object",
+                required: ["yarnType", "receivedQty", "supplierName", "challanNo"],
+
+                properties: {
+                    yarnType: { type: "string" },
+                    receivedQty: { type: "string" },
+                    supplierName: { type: "string" },
+                    challanNo: { type: "string" }
+                }
+            }
+        }
+    }, addNewYarnStock) // this route update new received yarn with qty
 
     fastify.post("/login", {
         schema: {

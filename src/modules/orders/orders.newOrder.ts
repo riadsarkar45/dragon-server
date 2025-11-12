@@ -2,16 +2,6 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import prisma from "../../Prisma/prisma";
 import { dyeingOrder } from "../../types/types";
 
-// colors: string;
-//     dyeingOrderNumber: string;
-//     dyeingSection: string;
-//     factoryName: string;
-//     marketingName: string;
-//     merchantName: string;
-//     orderQty: string;
-//     yarnType: string;
-//     createdAt: Date
-
 export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrder }>, reply: FastifyReply) => {
     const { colors, orderNo, dyeingSection, factoryName, marketingName, merchentName, marketingId, orderQty, yarnType } = req.body;
 
@@ -23,7 +13,6 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
     if (!factoryName) missingFields.push('factoryName');
     if (!marketingName) missingFields.push('marketingName');
     if (!merchentName) missingFields.push('merchentName');
-    // if (!marketingId) missingFields.push('marketingId');
     if (!orderQty) missingFields.push('orderQty');
     if (!yarnType) missingFields.push('yarnType');
 
@@ -48,25 +37,28 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                         marketingName: marketingName,
                         merchentName: merchentName,
                         orderQty: orderQty,
-                        yarnTypeId: 1,
+                        yarnType: yarnType,
                         monthName: new Date().toLocaleString('en-US', { month: 'long' })
                     }
                 }
             )
 
-            const yarnTypeArray = yarnType.split(',').map(yt => yt.trim());
-
-            const yarnTypeRows = [];
-            for (const yt of yarnTypeArray) {
-                const row = await tx.yarnTypes.upsert({
-                    where: { yarnType: yt }, // yarnType column must be unique
-                    update: {},
-                    create: { yarnType: yt }
-                });
-                yarnTypeRows.push(row);
-            }
-
+            const checkOrderYarnIfExist = await tx.yarnTypes.findMany(
+                {
+                    where: { yarnType: yarnType }
+                }
+            )
+            console.log(checkOrderYarnIfExist);
+            if (checkOrderYarnIfExist.length === 0) return;
+            // console.log(checkOrderYarnIfExist[0].id);
+            const yarnIdArray = checkOrderYarnIfExist.map(y => y.id);
             const dyeingOrderId = addNewOrder.id;
+
+            await tx.orderedYarn.createMany({
+                data: yarnIdArray.map(yarnId => ({ yarnTypeId: yarnId, dyeingOrderId: dyeingOrderId })),
+                skipDuplicates: true
+            });
+
             const convertColorsStringToArray = colors.split(',').map(color => color.trim());
 
             await tx.colors.createMany({
@@ -76,25 +68,12 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                 })),
             });
 
-            const convertYarnTypeToArray = yarnType.split(',').map(yt => yt.trim());
-
-            await tx.yarnTypes.createMany(
-                {
-                    data: convertYarnTypeToArray.map((yt) => (
-                        {
-                            yarnType: yt,
-                            dyeingOrderId: dyeingOrderId
-                        }
-                    ))
-
-                }
-            )
-
             return addNewOrder;
 
         })
 
         if (!addNewOrders) {
+            console.log(addNewOrders);
             return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
         }
 

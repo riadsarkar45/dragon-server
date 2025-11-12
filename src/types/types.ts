@@ -26,3 +26,10 @@ export interface loginUserPayload {
     email: string;
     password: string
 }
+
+export interface yarnStockPayload {
+    yarnType: string;
+    supplierName: string;
+    receivedQty: string;
+    challanNo: string;
+}

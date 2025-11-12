@@ -25,29 +25,44 @@ model users {
   createdAt       DateTime       @default(now())
 }
 
+model orderedYarn {
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  yarnTypeId    Int            // Remove @unique unless you really need it
+  dyeingOrderId Int
+  dyeingOrder   dyeingOrders   @relation(fields: [dyeingOrderId], references: [id])
+  yarnType      yarnTypes      @relation(fields: [yarnTypeId], references: [id])
+}
+
 model dyeingOrders {
-  id            Int       @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   orderNo       String
   orderQty      String
-  yarnTypeId    Int
-  yarnTypes     yarnTypes @relation(fields: [yarnTypeId], references: [id])
+  yarnType      String
   userId        Int
   marketingName String
   merchentName  String
   factoryName   String
   dyeingSection String
-  colors        colors[]
-  user          users?    @relation(fields: [userId], references: [id])
-  createdAt     DateTime  @default(now())
   monthName     String
+  createdAt     DateTime @default(now())
+
+  // relations
+  colors        colors[]
+  user          users?        @relation(fields: [userId], references: [id])
+  orderedYarns  orderedYarn[] // ← This is the reverse side of the one-to-many
 }
 
 model yarnTypes {
-  id           Int            @id @default(autoincrement())
-  yarnType     String         @unique
-  createdAt    DateTime       @default(now())
-  dyeingOrders dyeingOrders[]
+  id           Int           @id @default(autoincrement())
+  yarnType     String        @unique
+  challanNo    String        @unique
+  supplierName String
+  receivedQty  String
+  createdAt    DateTime      @default(now())
+  orderedYarn  orderedYarn[]
 }
+
 
 
 model colors {
