@@ -51,16 +51,19 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                 where: { yarnType: { in: checkMultipleYarnIfExist } }
             });
 
+            const convertLBSintoArray = orderQty.split(',').map(qty => qty.trim());
+
             if (checkOrderYarnIfExist.length === 0) return;
             const dyeingOrderId = addNewOrder.id;
 
             await tx.orderedYarn.createMany({
                 data:
-                checkMultipleYarnIfExist.map(yn => ({
-                    yarnTypes: yn,
-                    dyeingOrderId: dyeingOrderId,
-                    yarnTypeId: checkOrderYarnIfExist.find(y => y.yarnType === yn)?.id || 0
-                }))
+                    checkMultipleYarnIfExist.map((yn, index) => ({
+                        yarnTypes: yn,
+                        dyeingOrderId: dyeingOrderId,
+                        orderedYarnQty: convertLBSintoArray[index],
+                        yarnTypeId: checkOrderYarnIfExist.find(y => y.yarnType === yn)?.id || 0
+                    }))
             });
 
             const convertColorsStringToArray = colors.split(',').map(color => color.trim());

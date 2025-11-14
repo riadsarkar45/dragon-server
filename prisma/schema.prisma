@@ -26,13 +26,14 @@ model users {
 }
 
 model orderedYarn {
-  id               Int          @id @default(autoincrement())
-  createdAt        DateTime     @default(now())
-  yarnTypeId       Int // Remove @unique unless you really need it
-  dyeingOrderId    Int
-  yarnTypes        String
-  dyeingOrder      dyeingOrders @relation(fields: [dyeingOrderId], references: [id])
-  yarnType         yarnTypes    @relation(fields: [yarnTypeId], references: [id])
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  yarnTypeId     Int // Remove @unique unless you really need it
+  dyeingOrderId  Int
+  yarnTypes      String
+  orderedYarnQty String       @default("0")
+  dyeingOrder    dyeingOrders @relation(fields: [dyeingOrderId], references: [id])
+  yarnType       yarnTypes    @relation(fields: [yarnTypeId], references: [id])
 }
 
 model dyeingOrders {
