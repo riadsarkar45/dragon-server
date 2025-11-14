@@ -6,7 +6,7 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
     const { colors, orderNo, dyeingSection, factoryName, marketingName, merchentName, marketingId, orderQty, yarnType } = req.body;
 
     const missingFields = [];
-
+    console.log(yarnType);
     if (!colors) missingFields.push('colors');
     if (!orderNo) missingFields.push('orderNo');
     if (!dyeingSection) missingFields.push('dyeingSection');
@@ -37,26 +37,30 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                         marketingName: marketingName,
                         merchentName: merchentName,
                         orderQty: orderQty,
-                        yarnType: yarnType,
+                        // yarnType: "yarnType",
                         monthName: new Date().toLocaleString('en-US', { month: 'long' })
                     }
                 }
             )
 
-            const checkOrderYarnIfExist = await tx.yarnTypes.findMany(
-                {
-                    where: { yarnType: yarnType }
-                }
-            )
-            console.log(checkOrderYarnIfExist);
+            const checkMultipleYarnIfExist = yarnType
+                .split(",")
+                .map((yarn) => yarn.trim());
+
+            const checkOrderYarnIfExist = await tx.yarnTypes.findMany({
+                where: { yarnType: { in: checkMultipleYarnIfExist } }
+            });
+
             if (checkOrderYarnIfExist.length === 0) return;
-            // console.log(checkOrderYarnIfExist[0].id);
-            const yarnIdArray = checkOrderYarnIfExist.map(y => y.id);
             const dyeingOrderId = addNewOrder.id;
 
             await tx.orderedYarn.createMany({
-                data: yarnIdArray.map(yarnId => ({ yarnTypeId: yarnId, dyeingOrderId: dyeingOrderId })),
-                skipDuplicates: true
+                data:
+                checkMultipleYarnIfExist.map(yn => ({
+                    yarnTypes: yn,
+                    dyeingOrderId: dyeingOrderId,
+                    yarnTypeId: checkOrderYarnIfExist.find(y => y.yarnType === yn)?.id || 0
+                }))
             });
 
             const convertColorsStringToArray = colors.split(',').map(color => color.trim());
@@ -73,7 +77,7 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
         })
 
         if (!addNewOrders) {
-            console.log(addNewOrders);
+            console.log("nonors");
             return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
         }
 

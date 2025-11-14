@@ -5,6 +5,7 @@ import { allRoutes } from "./routes/routes";
 import fastifyCookie from "@fastify/cookie";
 import { env } from "process";
 import fastifyJwt from "@fastify/jwt";
+import { getRoutes } from "./routes/getRoutes/get.dyeingOrders";
 const app = Fastify(
   {
     logger: {
@@ -35,7 +36,8 @@ app.register(fastifyCookie)
 
 
 
-app.register(allRoutes); // all routes are @registered here
+app.register(allRoutes); // post method routes are @registered here
+app.register(getRoutes); // get method routes are @registered here
 
 const jwtSecret = process.env.JWT_SECRET;
 
