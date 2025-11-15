@@ -37,7 +37,6 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                         marketingName: marketingName,
                         merchentName: merchentName,
                         orderQty: orderQty,
-                        // yarnType: "yarnType",
                         monthName: new Date().toLocaleString('en-US', { month: 'long' })
                     }
                 }
@@ -80,7 +79,6 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
         })
 
         if (!addNewOrders) {
-            console.log("nonors");
             return reply.status(400).send({ message: "Something went wrong. Please don't try again latter." })
         }
 

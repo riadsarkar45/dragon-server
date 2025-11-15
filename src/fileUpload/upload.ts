@@ -9,6 +9,7 @@ interface CloudinaryUploadResult {
 export const multiFileUpload = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
         const files = await req.files();
+        console.log(files);
         if (!files) {
             reply.status(400).send({ success: false, message: "No files uploaded" });
             return;

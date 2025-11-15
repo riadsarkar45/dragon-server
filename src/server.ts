@@ -1,12 +1,13 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { databaseConnect } from "./database/databaseConnect";
-import { allRoutes } from "./routes/routes";
+import { allRoutes } from "./routes/post/routes";
 import fastifyCookie from "@fastify/cookie";
 import { env } from "process";
 import fastifyJwt from "@fastify/jwt";
-import { getRoutes } from "./routes/getRoutes/get.dyeingOrders";
+import { getRoutes } from "./routes/get/get.dyeingOrders";
 import fastifyMultipart from "@fastify/multipart";
+import { updateRoutes } from "./routes/update/routes";
 
 const app = Fastify(
   {
@@ -32,15 +33,16 @@ const allowedOrigins = [
 app.register(cors, {
   origin: allowedOrigins,
   credentials: true,
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
 })
 
 app.register(fastifyCookie)
 
 
-
+app.register(fastifyMultipart);
 app.register(allRoutes); // post method routes are @registered here
 app.register(getRoutes); // get method routes are @registered here
-app.register(fastifyMultipart);
+app.register(updateRoutes); // update method routes are @registered here
 
 const jwtSecret = process.env.JWT_SECRET;
 

@@ -1,8 +1,9 @@
 import { FastifyInstance } from "fastify";
-import { createNewDyeingOrder } from "../modules/orders/orders.newOrder";
-import { createNewUser } from "../modules/users/createNewUser";
-import { userLogin } from "../modules/users/login";
-import { addNewYarnStock } from "../modules/yarnstock/addNewYarn";
+import { createNewDyeingOrder } from "../../modules/orders/orders.newOrder";
+import { createNewUser } from "../../modules/users/createNewUser";
+import { userLogin } from "../../modules/users/login";
+import { addNewYarnStock } from "../../modules/yarnstock/addNewYarn";
+import { multiFileUpload } from "../../fileUpload/upload";
 
 export const allRoutes = (fastify: FastifyInstance) => {
 
@@ -70,6 +71,8 @@ export const allRoutes = (fastify: FastifyInstance) => {
             }
         }
     }, addNewYarnStock) // this route update new received yarn with qty
+
+    fastify.post("/fileupload", multiFileUpload) // file upload route
 
     fastify.post("/login", {
         schema: {
