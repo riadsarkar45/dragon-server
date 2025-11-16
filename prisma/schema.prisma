@@ -51,7 +51,17 @@ model dyeingOrders {
   // relations
   colors       colors[]
   user         users?        @relation(fields: [userId], references: [id])
-  orderedYarns orderedYarn[] // ← This is the reverse side of the one-to-many
+  orderedYarns orderedYarn[]
+  challans     challans[]
+}
+
+model challans {
+  id            Int           @id @default(autoincrement())
+  challanImage  String        @unique
+  dyeingOrderNo String        
+  dyeingOrderId Int
+  createdAt     DateTime      @default(now())
+  dyeingOrders  dyeingOrders? @relation(fields: [dyeingOrderId], references: [id])
 }
 
 model yarnTypes {

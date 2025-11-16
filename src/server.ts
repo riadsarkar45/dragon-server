@@ -64,7 +64,7 @@ app.get("/", async () => {
 
 const start = async () => {
   try {
-    const port = parseInt(process.env.PORT || "3000", 10); // changed to 3000
+    const port = parseInt(process.env.PORT || "2000", 10); // changed to 3000
     const address = await app.listen({ port, host: '0.0.0.0' }); // '0.0.0.0' listens on all interfaces
     app.log.info(`Server listening at ${address}`);
   } catch (err) {

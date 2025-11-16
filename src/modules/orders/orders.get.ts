@@ -15,6 +15,12 @@ export const getDyeingOrders = async (req: FastifyRequest, reply: FastifyReply) 
                 orderNo: true,
                 orderQty: true,
                 monthName: true,
+                challans: {
+                    select: {
+                        challanImage: true,
+                        createdAt: true,
+                    }
+                },
 
                 user: {
                     select: {
