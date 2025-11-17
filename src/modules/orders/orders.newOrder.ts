@@ -32,7 +32,7 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
                     data: {
                         dyeingSection: dyeingSection,
                         orderNo: orderNo,
-                        userId: 1,
+                        userId: 3,
                         factoryName: factoryName,
                         marketingName: marketingName,
                         merchentName: merchentName,

@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import prisma from "../../Prisma/prisma";
 
 type OrderedYarn = {
-    orderedYarnQty: number | string; // যদি DB এ string থাকে
+    orderedYarnQty: number | string;
 };
 
 type DyeingOrderReport = {
@@ -16,48 +16,59 @@ type ResultItem = {
     dyeingSection: string;
     totalLbs: number;
     count: number;
+    yarnType: string | null;
 };
 
 export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-        const report: DyeingOrderReport[] = await prisma.dyeingOrders.findMany({
+        const report = await prisma.users.findMany({
             select: {
-                marketingName: true,
-                dyeingSection: true,
-                orderedYarns: {
+                name: true,
+                orders: {
                     select: {
-                        orderedYarnQty: true, // corrected field name
-                    },
+                        id: true,
+                        dyeingSection: true,
+                        marketingName: true,  
+                        orderedYarns: {
+                            select: {
+                                orderedYarnQty: true,
+                                yarnType: true,
+                            }
+                        },
+                    }
                 },
             },
         });
 
-        const result: Record<string, ResultItem> = {};
+        const sectionWiseReport = [] as ResultItem[];
 
-        report.forEach(order => {
-            const key = `${order.marketingName}-${order.dyeingSection}`;
-            const totalLbs = order.orderedYarns.reduce(
-                (sum, y) => sum + Number(y.orderedYarnQty),
-                0
-            );
+        report.forEach(user => {
+            user.orders.forEach(dyeingOrders => {
+                dyeingOrders.orderedYarns.forEach(yarn => {
 
-            if (!result[key]) {
-                result[key] = {
-                    marketingName: order.marketingName,
-                    dyeingSection: order.dyeingSection,
-                    totalLbs: 0,
-                    count: 0,
-                };
-            }
+                    const existingSection = sectionWiseReport.find(
+                        item => item.marketingName === dyeingOrders.marketingName
+                    );
 
-            result[key].totalLbs += totalLbs;
-            result[key].count += 1;
+                    if (existingSection) {
+                        existingSection.totalLbs += Number(yarn.orderedYarnQty);
+                    } else {
+                        sectionWiseReport.push({
+                            dyeingSection: dyeingOrders.dyeingSection,
+                            marketingName: dyeingOrders.marketingName,
+                            count: 1,
+                            totalLbs: Number(yarn.orderedYarnQty),
+                            yarnType: yarn.yarnType.yarnType || null,
+                        });
+                    }
+                });
+            });
         });
 
-        const finalReport: ResultItem[] = Object.values(result);
+
         reply.send({
             success: true,
-            data: finalReport,
+            data: {sectionWiseReport, report},
         });
     } catch (err) {
         req.log.error({ err }, "Marketing wise report generation failed");
