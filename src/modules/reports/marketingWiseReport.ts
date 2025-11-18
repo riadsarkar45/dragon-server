@@ -15,12 +15,16 @@ import prisma from "../../Prisma/prisma";
 type YarnItem = {
     yarn: string;
     qty: number;
+    factoryName: string | null;
+    dyeingSection: string | null;
 };
 
 type MarketingReport = {
     marketingName: string;
     totalOrderQty: number;
+    factoryName: string | null;
     orderedYarns: YarnItem[];
+    dyeingSection: string | null;
 };
 
 export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -28,6 +32,8 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
         const summary = await prisma.dyeingOrders.findMany({
             select: {
                 marketingName: true,
+                factoryName: true,
+                dyeingSection: true,
                 orderedYarns: {
                     select: {
                         orderedYarnQty: true,
@@ -51,6 +57,8 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
                 reportMap[mName] = {
                     marketingName: mName,
                     totalOrderQty: 0,
+                    factoryName: order.factoryName,
+                    dyeingSection: order.dyeingSection,
                     orderedYarns: []
                 };
             }
@@ -58,10 +66,14 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
             order.orderedYarns.forEach((oy) => {
                 const qty = Number(oy.orderedYarnQty || "0") || 0;
                 const yarnName = oy.yarnType?.yarnType ?? "Unknown";
-
+                const factoryName = order.factoryName;
+                const dyeingSection = order.dyeingSection
                 reportMap[mName].orderedYarns.push({
                     yarn: yarnName,
-                    qty
+                    qty,
+                    factoryName,
+                    dyeingSection
+                    
                 });
 
                 reportMap[mName].totalOrderQty += qty;
