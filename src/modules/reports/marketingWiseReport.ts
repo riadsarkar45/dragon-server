@@ -1,80 +1,84 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import prisma from "../../Prisma/prisma";
 
-type OrderedYarn = {
-    orderedYarnQty: number | string;
+/**
+ * Output shape:
+ * [
+ *   {
+ *     marketingName: string;
+ *     totalOrderQty: number;
+ *     orderedYarns: { yarn: string; qty: number }[];
+ *   }
+ * ]
+ */
+
+type YarnItem = {
+    yarn: string;
+    qty: number;
 };
 
-type DyeingOrderReport = {
+type MarketingReport = {
     marketingName: string;
-    dyeingSection: string;
-    orderedYarns: OrderedYarn[];
-};
-
-type ResultItem = {
-    marketingName: string;
-    dyeingSection: string;
-    totalLbs: number;
-    count: number;
-    yarnType: string | null;
+    totalOrderQty: number;
+    orderedYarns: YarnItem[];
 };
 
 export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-        const report = await prisma.users.findMany({
+        const summary = await prisma.dyeingOrders.findMany({
             select: {
-                name: true,
-                orders: {
+                marketingName: true,
+                orderedYarns: {
                     select: {
-                        id: true,
-                        dyeingSection: true,
-                        marketingName: true,  
-                        orderedYarns: {
+                        orderedYarnQty: true,
+                        yarnType: {
                             select: {
-                                orderedYarnQty: true,
-                                yarnType: true,
+                                yarnType: true
                             }
-                        },
+                        }
                     }
-                },
-            },
+                }
+            }
         });
 
-        const sectionWiseReport = [] as ResultItem[];
+        const reportMap: Record<string, MarketingReport> = {};
 
-        report.forEach(user => {
-            user.orders.forEach(dyeingOrders => {
-                dyeingOrders.orderedYarns.forEach(yarn => {
+        summary.forEach((order) => {
+            const mName = order.marketingName;
+            if (!mName) return;
 
-                    const existingSection = sectionWiseReport.find(
-                        item => item.marketingName === dyeingOrders.marketingName
-                    );
+            if (!reportMap[mName]) {
+                reportMap[mName] = {
+                    marketingName: mName,
+                    totalOrderQty: 0,
+                    orderedYarns: []
+                };
+            }
 
-                    if (existingSection) {
-                        existingSection.totalLbs += Number(yarn.orderedYarnQty);
-                    } else {
-                        sectionWiseReport.push({
-                            dyeingSection: dyeingOrders.dyeingSection,
-                            marketingName: dyeingOrders.marketingName,
-                            count: 1,
-                            totalLbs: Number(yarn.orderedYarnQty),
-                            yarnType: yarn.yarnType.yarnType || null,
-                        });
-                    }
+            order.orderedYarns.forEach((oy) => {
+                const qty = Number(oy.orderedYarnQty || "0") || 0;
+                const yarnName = oy.yarnType?.yarnType ?? "Unknown";
+
+                reportMap[mName].orderedYarns.push({
+                    yarn: yarnName,
+                    qty
                 });
+
+                reportMap[mName].totalOrderQty += qty;
             });
         });
 
+        const result: MarketingReport[] = Object.values(reportMap);
 
         reply.send({
             success: true,
-            data: {sectionWiseReport, report},
+            data: result
         });
     } catch (err) {
         req.log.error({ err }, "Marketing wise report generation failed");
         reply.status(500).send({
             success: false,
-            message: "Failed to generate marketing wise report. Please try again later.",
+            message: "Failed to generate marketing wise report."
         });
     }
 };
