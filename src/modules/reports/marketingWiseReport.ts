@@ -29,6 +29,14 @@ type MarketingReport = {
 
 export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
+        const cachedReport = req.server.cache.get("marketingReport")
+
+        if(cachedReport){
+            reply.send({
+            success: true,
+            data: cachedReport
+        });
+        }
         const summary = await prisma.dyeingOrders.findMany({
             select: {
                 marketingName: true,
@@ -81,6 +89,8 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
         });
 
         const result: MarketingReport[] = Object.values(reportMap);
+
+        req.server.cache.set("marketingReport", result)
 
         reply.send({
             success: true,

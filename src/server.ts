@@ -3,11 +3,11 @@ import cors from "@fastify/cors";
 import { databaseConnect } from "./database/databaseConnect";
 import { allRoutes } from "./routes/post/routes";
 import fastifyCookie from "@fastify/cookie";
-import { env } from "process";
 import fastifyJwt from "@fastify/jwt";
-import { getRoutes } from "./routes/get/get.dyeingOrders";
+import { getRoutes } from "./routes/get/routes";
 import fastifyMultipart from "@fastify/multipart";
 import { updateRoutes } from "./routes/update/routes";
+import cachePlugin from "./plugins/caching/cache";
 
 const app = Fastify(
   {
@@ -38,6 +38,10 @@ app.register(cors, {
 
 app.register(fastifyCookie)
 
+app.register(cachePlugin, { 
+  stdTTL: 600, 
+  useClones: false 
+});
 
 app.register(fastifyMultipart);
 app.register(allRoutes); // post method routes are @registered here

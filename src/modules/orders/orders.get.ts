@@ -3,6 +3,11 @@ import prisma from "../../Prisma/prisma";
 
 export const getDyeingOrders = async (req: FastifyRequest, reply: FastifyReply) => {
 
+    const cachedDyeingOrders = req.server.cache.get("dyeingOrders")
+    if (cachedDyeingOrders) {
+        return reply.status(200).send({ dyeingOrders: cachedDyeingOrders })
+
+    }
     const dyeingOrders = await prisma.dyeingOrders.findMany(
         {
             select: {
@@ -36,7 +41,11 @@ export const getDyeingOrders = async (req: FastifyRequest, reply: FastifyReply) 
         }
     )
 
+    req.server.cache.set("dyeingOrders", dyeingOrders, 300)
+
+
     if (!dyeingOrders) return reply.status(404).send({ message: "No dyeing order found." })
+
 
     reply.status(200).send({ dyeingOrders: dyeingOrders })
 }
