@@ -6,6 +6,8 @@ type YarnItem = {
     qty: number;
     factoryName: string | null;
     dyeingSection: string | null;
+    orderNo: string | null
+
 };
 
 type MarketingReport = {
@@ -14,20 +16,24 @@ type MarketingReport = {
     factoryName: string | null;
     orderedYarns: YarnItem[];
     dyeingSection: string | null;
+    orderNo: string | null
+
 };
 
 type FactoryReportItem = {
     yarn: string;
     qty: number;
+    merchentName: string | null;  // Added merchant name to each yarn item
+    marketingName: string | null; // Added marketing name to each yarn item
+    orderNo: string | null
+
 };
 
 type FactoryReport = {
     factoryName: string | null;
-    merchentName: string | null;
-    marketingName: string | null;
-    dyeingSection: string | null;
-    totalOrderQty: number;
-    orderedYarns: FactoryReportItem[];
+    orderNo: string | null
+    orderedYarns: FactoryReportItem[]; // Now contains detailed yarn items with merchant info
+
 };
 
 export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -38,6 +44,7 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
                 factoryName: true,
                 dyeingSection: true,
                 merchentName: true,
+                orderNo: true,
                 orderedYarns: {
                     select: {
                         orderedYarnQty: true,
@@ -51,7 +58,7 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
         const factoryMap: Record<string, FactoryReport> = {};
 
         summary.forEach((order) => {
-            const { marketingName, factoryName, merchentName, dyeingSection } = order;
+            const { marketingName, factoryName, orderNo, merchentName, dyeingSection } = order;
             if (!marketingName) return;
 
             // --- Marketing wise report ---
@@ -61,20 +68,18 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
                     factoryName,
                     dyeingSection,
                     totalOrderQty: 0,
-                    orderedYarns: []
+                    orderedYarns: [],
+                    orderNo
                 };
             }
 
             // --- Factory wise KEY ---
-            const factoryKey = `${factoryName}-${merchentName}`;
+            const factoryKey = factoryName || 'unknown_factory'; // Use factory name as key
 
             if (!factoryMap[factoryKey]) {
                 factoryMap[factoryKey] = {
                     factoryName,
-                    merchentName,
-                    marketingName,
-                    dyeingSection,
-                    totalOrderQty: 0,
+                    orderNo,
                     orderedYarns: []
                 };
             }
@@ -89,16 +94,19 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
                     yarn,
                     qty,
                     factoryName,
-                    dyeingSection
+                    dyeingSection,
+                    orderNo
                 });
                 marketingMap[marketingName].totalOrderQty += qty;
 
-                // Factory wise
+                // Factory wise - now grouped by factory with merchant and marketing info
                 factoryMap[factoryKey].orderedYarns.push({
                     yarn,
-                    qty
+                    qty,
+                    merchentName,
+                    marketingName,
+                    orderNo
                 });
-                factoryMap[factoryKey].totalOrderQty += qty;
             });
         });
 
