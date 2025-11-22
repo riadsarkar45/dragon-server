@@ -32,6 +32,8 @@ model orderedYarn {
   dyeingOrderId  Int
   yarnTypes      String
   orderedYarnQty String       @default("0")
+  unitPrice      Float          @default(0)
+  status         String       @default("NOT ADJUSTED")
   dyeingOrder    dyeingOrders @relation(fields: [dyeingOrderId], references: [id])
   yarnType       yarnTypes    @relation(fields: [yarnTypeId], references: [id])
 }
@@ -58,7 +60,7 @@ model dyeingOrders {
 model challans {
   id            Int           @id @default(autoincrement())
   challanImage  String        @unique
-  dyeingOrderNo String        
+  dyeingOrderNo String
   dyeingOrderId Int
   createdAt     DateTime      @default(now())
   dyeingOrders  dyeingOrders? @relation(fields: [dyeingOrderId], references: [id])

@@ -3,10 +3,9 @@ import prisma from "../../Prisma/prisma";
 import { dyeingOrder } from "../../types/types";
 
 export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrder }>, reply: FastifyReply) => {
-    const { colors, orderNo, dyeingSection, factoryName, marketingName, merchentName, marketingId, orderQty, yarnType } = req.body;
+    const { colors, orderNo, unitPrice, dyeingSection, factoryName, marketingName, merchentName, orderQty, yarnType } = req.body;
 
     const missingFields = [];
-    console.log(yarnType);
     if (!colors) missingFields.push('colors');
     if (!orderNo) missingFields.push('orderNo');
     if (!dyeingSection) missingFields.push('dyeingSection');
@@ -55,13 +54,15 @@ export const createNewDyeingOrder = async (req: FastifyRequest<{ Body: dyeingOrd
             if (checkOrderYarnIfExist.length === 0) return;
             const dyeingOrderId = addNewOrder.id;
 
+            const convertUnitPriceIntoArray = unitPrice.toString().split(',').map(pr => Number(pr));
             await tx.orderedYarn.createMany({
                 data:
                     checkMultipleYarnIfExist.map((yn, index) => ({
                         yarnTypes: yn,
                         dyeingOrderId: dyeingOrderId,
                         orderedYarnQty: convertLBSintoArray[index],
-                        yarnTypeId: checkOrderYarnIfExist.find(y => y.yarnType === yn)?.id || 0
+                        yarnTypeId: checkOrderYarnIfExist.find(y => y.yarnType === yn)?.id || 0,
+                        unitPrice: convertUnitPriceIntoArray[index],
                     }))
             });
 

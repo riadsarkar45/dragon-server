@@ -11,6 +11,11 @@ export interface dyeingOrder {
     yarnType: string;
     monthName: string;  // Add this
     createdAt: Date;
+    unitPrice: number
+}
+
+export interface sampleAdjustParams {
+    yarnId: number
 }
 
 export interface usersBodyTypes {

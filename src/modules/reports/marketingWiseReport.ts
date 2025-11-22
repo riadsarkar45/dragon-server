@@ -26,7 +26,9 @@ type FactoryReportItem = {
     merchentName: string | null;  // Added merchant name to each yarn item
     marketingName: string | null; // Added marketing name to each yarn item
     orderNo: string | null
-
+    unitPrice: number | null
+    status: string | null
+    id: number | null
 };
 
 type FactoryReport = {
@@ -48,6 +50,9 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
                 orderedYarns: {
                     select: {
                         orderedYarnQty: true,
+                        unitPrice: true,
+                        status: true,
+                        id: true,
                         yarnType: { select: { yarnType: true } }
                     }
                 }
@@ -101,11 +106,14 @@ export const marketingWiseReport = async (req: FastifyRequest, reply: FastifyRep
 
                 // Factory wise - now grouped by factory with merchant and marketing info
                 factoryMap[factoryKey].orderedYarns.push({
+                    id: oy.id,
                     yarn,
                     qty,
                     merchentName,
                     marketingName,
-                    orderNo
+                    orderNo,
+                    unitPrice: oy.unitPrice,
+                    status: oy.status,
                 });
             });
         });
