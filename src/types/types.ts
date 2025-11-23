@@ -38,3 +38,7 @@ export interface yarnStockPayload {
     receivedQty: string;
     challanNo: string;
 }
+
+export interface piGeneratorPayload {
+    buyerName: string
+}

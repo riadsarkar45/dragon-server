@@ -4,6 +4,7 @@ import { createNewUser } from "../../modules/users/createNewUser";
 import { userLogin } from "../../modules/users/login";
 import { addNewYarnStock } from "../../modules/yarnstock/addNewYarn";
 import { multiFileUpload } from "../../fileUpload/upload";
+import { generatePI } from "../../modules/pdf/generatePI";
 
 export const allRoutes = (fastify: FastifyInstance) => {
 
@@ -86,4 +87,17 @@ export const allRoutes = (fastify: FastifyInstance) => {
             }
         }
     }, userLogin) // user login route
+
+    fastify.post("/generate-pi", {
+        schema: {
+            body: {
+                type: "object",
+                required: ["buyerName"],
+                properties: {
+                    buyerName: { type: "string" }
+                }
+            }
+        }
+    }, generatePI)
+
 }
