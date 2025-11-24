@@ -41,4 +41,13 @@ export interface yarnStockPayload {
 
 export interface piGeneratorPayload {
     buyerName: string
+    date: string
+    items: {
+        description: string;
+        quantity: number;
+        unitPrice: number;
+    }[];
+    hsCode: string;
+    grandTotal: number;
+    piNo: string
 }
