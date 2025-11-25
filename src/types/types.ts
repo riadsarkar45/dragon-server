@@ -15,7 +15,8 @@ export interface dyeingOrder {
 }
 
 export interface sampleAdjustParams {
-    yarnId: number
+    yarnId: number;
+    selectOrderedYarnId: string[];
 }
 
 export interface usersBodyTypes {

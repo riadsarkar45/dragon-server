@@ -5,5 +5,5 @@ import { adjustSample } from "../../modules/reports/adjustSample";
 export const updateRoutes = (fastify: FastifyInstance) => {
         fastify.put('/dyeing-order/challan/:id', updateDyeingOrderWithChallan);
         
-        fastify.put('/sample-adjust/:yarnId', adjustSample);
+        fastify.put('/sample-adjust', adjustSample);
 }
