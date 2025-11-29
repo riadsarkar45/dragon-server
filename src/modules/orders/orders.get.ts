@@ -43,9 +43,7 @@ export const getDyeingOrders = async (req: FastifyRequest, reply: FastifyReply) 
 
     req.server.cache.set("dyeingOrders", dyeingOrders, 300)
 
-
     if (!dyeingOrders) return reply.status(404).send({ message: "No dyeing order found." })
-
 
     reply.status(200).send({ dyeingOrders: dyeingOrders })
 }
