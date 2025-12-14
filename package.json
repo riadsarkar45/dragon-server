@@ -23,6 +23,7 @@
     "env": "^0.0.2",
     "fastify": "^5.6.1",
     "node-cache": "^5.1.2",
+    "node-cron": "^4.2.1",
     "nodemon": "^3.1.10",
     "pdfkit": "^0.17.2",
     "pino-pretty": "^13.1.2",

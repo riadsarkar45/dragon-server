@@ -9,6 +9,7 @@ import { getRoutes } from "./routes/get/routes";
 import fastifyMultipart from "@fastify/multipart";
 import { updateRoutes } from "./routes/update/routes";
 import cachePlugin from "./plugins/caching/cache";
+import { email } from "./plugins/crone/cron.plugin";
 
 const app = Fastify({
   logger: {
@@ -44,6 +45,7 @@ app.register(fastifyMultipart);
 app.register(allRoutes);
 app.register(getRoutes);
 app.register(updateRoutes);
+app.register(email)
 
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) throw new Error("JWT_SECRET is not set");
