@@ -60,7 +60,7 @@ const sendEmail = async (orderNumbers) => {
     console.log(`📧 Expiry warning email sent for orders: ${orderNumbers.join(', ')}`);
 };
 const sendExpiryEmails = () => {
-    node_cron_1.default.schedule('0 9 * * *', async () => {
+    node_cron_1.default.schedule('0 10 * * *', async () => {
         try {
             const today = (0, date_fns_1.startOfDay)(new Date());
             const tomorrowStart = (0, date_fns_1.addDays)(today, 1);
