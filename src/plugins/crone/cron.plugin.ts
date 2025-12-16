@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { sendEmail } from "../../jobs/sendEmail";
+import { sendExpiryEmails } from "../../jobs/sendEmail";
 
 export const email = async (fastify: FastifyInstance) => {
-    sendEmail();
+    sendExpiryEmails();
     fastify.log.info('Cron jobs registered')
 }
