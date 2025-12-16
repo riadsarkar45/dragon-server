@@ -14,6 +14,7 @@ const routes_2 = require("./routes/get/routes");
 const multipart_1 = __importDefault(require("@fastify/multipart"));
 const routes_3 = require("./routes/update/routes");
 const cache_1 = __importDefault(require("./plugins/caching/cache"));
+const cron_plugin_1 = require("./plugins/crone/cron.plugin");
 const app = (0, fastify_1.default)({
     logger: {
         transport: {
@@ -44,6 +45,7 @@ app.register(multipart_1.default);
 app.register(routes_1.allRoutes);
 app.register(routes_2.getRoutes);
 app.register(routes_3.updateRoutes);
+app.register(cron_plugin_1.email);
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret)
     throw new Error("JWT_SECRET is not set");

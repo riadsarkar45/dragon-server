@@ -62,7 +62,7 @@ const sendEmail = async (orderNumbers: string[]) => {
 }
 
 export const sendExpiryEmails = () => {
-  cron.schedule('*/5 * * * * *', async () => {
+  cron.schedule('0 9 * * *', async () => {
     try {
       const today = startOfDay(new Date())
       const tomorrowStart = addDays(today, 1)
