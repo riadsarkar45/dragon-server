@@ -86,3 +86,10 @@ model colors {
   dyeingOrders  dyeingOrders @relation(fields: [dyeingOrderId], references: [id])
   dyeingOrderId Int
 }
+
+model countSentEmails {
+  id      Int      @id @default(autoincrement())
+  email   String
+  sentAt  DateTime @default(now())
+  orderNo String
+}

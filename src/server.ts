@@ -30,6 +30,7 @@ const allowedOrigins = [
   "http://localhost:5174",
   "https://tasty-flax.vercel.app",
   "https://learn-lovat-psi.vercel.app",
+  "https://demon-erp.vercel.app",
 ];
 
 app.register(cors, {

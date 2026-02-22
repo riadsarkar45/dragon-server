@@ -17,12 +17,12 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (orderNumbers: string[]) => {
   if (orderNumbers.length === 0) return
 
-  await transporter.sendMail({
-  from: '"Riad"',
-  to: 'sarkarriad92@gmail.com',
-  subject: 'Expiry Warning: Orders Expiring Tomorrow',
-  text: `The following orders are expiring tomorrow: ${orderNumbers.join(', ')}`,
-  html: `
+  const sendWarningEmail = await transporter.sendMail({
+    from: '"Riad"',
+    to: 'sarkarriad92@gmail.com',
+    subject: 'Expiry Warning: Orders Expiring Tomorrow',
+    text: `The following orders are expiring tomorrow: ${orderNumbers.join(', ')}`,
+    html: `
   <html>
     <body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
       <div style="background-color: #f44336; color: white; padding: 15px; text-align: center;">
@@ -39,13 +39,13 @@ const sendEmail = async (orderNumbers: string[]) => {
         </thead>
         <tbody>
           ${orderNumbers
-            .map(
-              (o) =>
-                `<tr>
+        .map(
+          (o) =>
+            `<tr>
                   <td style="border: 1px solid #ddd; padding: 8px;">${o}</td>
                 </tr>`
-            )
-            .join('')}
+        )
+        .join('')}
         </tbody>
       </table>
 
@@ -55,7 +55,27 @@ const sendEmail = async (orderNumbers: string[]) => {
     </body>
   </html>
   `,
-})
+  })
+
+  if (sendWarningEmail.rejected.length > 0) {
+    console.error('❌ Email send failed for orders:', orderNumbers.join(', '))
+    return
+  }
+
+  const updateMailTableForHistory = await prisma.countSentEmails.createMany(
+    {
+      data: orderNumbers.map((orderNo) => ({
+        orderNo: orderNo,
+        emailType: 'Expiry Warning',
+        email: "SENT"
+      })),
+    }
+  )
+
+  if (updateMailTableForHistory) {
+    console.log(' Email history logged successfully.')
+  }
+
 
 
   console.log(`📧 Expiry warning email sent for orders: ${orderNumbers.join(', ')}`)

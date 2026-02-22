@@ -21,7 +21,7 @@ const transporter = nodemailer_1.default.createTransport({
 const sendEmail = async (orderNumbers) => {
     if (orderNumbers.length === 0)
         return;
-    await transporter.sendMail({
+    const sendWarningEmail = await transporter.sendMail({
         from: '"Riad"',
         to: 'sarkarriad92@gmail.com',
         subject: 'Expiry Warning: Orders Expiring Tomorrow',
@@ -57,6 +57,20 @@ const sendEmail = async (orderNumbers) => {
   </html>
   `,
     });
+    if (sendWarningEmail.rejected.length > 0) {
+        console.error('❌ Email send failed for orders:', orderNumbers.join(', '));
+        return;
+    }
+    const updateMailTableForHistory = await prisma_1.default.countSentEmails.createMany({
+        data: orderNumbers.map((orderNo) => ({
+            orderNo: orderNo,
+            emailType: 'Expiry Warning',
+            email: "SENT"
+        })),
+    });
+    if (updateMailTableForHistory) {
+        console.log(' Email history logged successfully.');
+    }
     console.log(`📧 Expiry warning email sent for orders: ${orderNumbers.join(', ')}`);
 };
 const sendExpiryEmails = () => {
